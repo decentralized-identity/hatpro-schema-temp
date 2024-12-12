@@ -1,9 +1,12 @@
-# Introduction
-===
+# README - HATP Travel Profile Modeling
 
-<< The Note Version >>
+## **TL;DR:** 
+The DIF Hospitality & Travel SIG Travel Profile project is using the [PlantUML](https://plantuml.com) modeling tool. This is a text based modeling tool that can automatically UML Class, Sequence and other diagram types.
 
+As it is text based it is a natural fit for GitHub and for those who a coders by nature vs. graphics tool oriented.
 
-The [ToIP Governance Stack Working Group](https://wiki.trustoverip.org/display/HOME/Governance+Stack+Working+Group) and it's sub-groups are primarly defining how you organize projects, documents and the actors (components) and the roles they play for Governance for the ToIP (4 layer) **Dual Stack** model where Governance and Technology each play a role at each level in the stack:
+PlantUML can be installed locally (Mac, Windows) and integrated with Visual Studio code, which, in turn can be integrated with the [H&T online GitHub instance](https://github.com/decentralized-identity/ht-travel-profile).
 
-![Trust over IP Dual Stack Architecture](https://i.imgur.com/dAV0IHe.png)
+While PlantUML has an [online editor](https://www.plantuml.com/plantuml/uml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000), the PlantText [editor](https://planttext.com) is better and has a faster response time.
+
+![PlantUML Model with the PlantText.com editor](https://github.com/decentralized-identity/ht-travel-profile/blob/main/Modeling/Images/PlantTextScreenShot.png)
