@@ -1,0 +1,94 @@
+@startuml TravelProfile
+' TravelProfile.puml
+' Top-level class that composes a ProfileIdentifier and passive content.
+
+!include ProfileIdentifier.puml
+
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontSize 12
+}
+
+title TravelProfile — top-level (passive) model
+
+package "Traveler Profile (Passive Data Object)" {
+  class TravelProfile {
+    +identifier: ProfileIdentifier
+    +version: ISODateTime
+    +content: ProfileContent
+  }
+
+  class ProfileContent {
+    .. illustrative only ..
+    preferences: AttestableItem[0..*]
+    supportNeeds: AttestableItem[0..*]
+    contact: AttestableItem[0..*]
+  }
+
+  class AttestableItem {
+    +value: any
+    +evidence: EvidenceEnvelope[0..*]  ' optional; format-agnostic
+  }
+
+  class EvidenceEnvelope {
+    +issuerDid: string
+    +holderBinding: HolderBinding
+    +proof: Proof
+    +issuedAt: ISODateTime
+    +expiresAt: ISODateTime
+    +sourceSystem: string
+    +semanticsRef: string
+    +dataRef: string
+  }
+
+  class HolderBinding {
+    +holderDid: string
+    +method: HolderBindMethod
+    +challenge: string
+    +boundAt: ISODateTime
+  }
+
+  enum HolderBindMethod {
+    did-subject
+    did-pop-challenge
+    transport-bound
+  }
+
+  class Proof {
+    +type: ProofType
+    +alg: string
+    +kid: string
+    +canonicalization: string
+    +hashAlg: string
+    +digest: string
+    +bytes: string
+  }
+
+  enum ProofType {
+    JWS-detached
+    COSE_Sign1
+    CMS-PKCS7
+    HL7-FHIR-signature
+    VC-JWT
+    VC-LD
+    DSSE
+    PDF-PKCS7
+  }
+}
+
+TravelProfile *-- ProfileIdentifier : identifier
+ProfileContent o-- AttestableItem
+AttestableItem "1" o-- "0..*" EvidenceEnvelope
+EvidenceEnvelope o-- HolderBinding
+EvidenceEnvelope o-- Proof
+
+note top of TravelProfile
+- TravelProfile is PASSIVE (no private keys)
+- identifier.profileId = UUIDv7 (anchor)
+- identifier.holderDid = traveler DID (recommended)
+- Signatures are external; made by DIDs listed in identifier.controllerDids
+end note
+
+@enduml

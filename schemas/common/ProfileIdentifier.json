@@ -1,0 +1,70 @@
+{
+  "$id": "https://example.org/hatpro/mvp/schemas/common/ProfileIdentifier.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProfileIdentifier (UUIDv7 anchor + DIDs + aliases)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profileId"
+  ],
+  "properties": {
+    "profileId": {
+      "title": "Primary UUIDv7",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "holderDid": {
+      "$ref": "DID.json"
+    },
+    "controllerDids": {
+      "type": "array",
+      "items": {
+        "$ref": "DID.json"
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "system",
+          "id"
+        ],
+        "properties": {
+          "system": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "profileId": "018f1d24-5c1a-7b2c-8b1e-9a4b7f3d2c10",
+      "holderDid": "did:peer:2zQmAbC...xyz",
+      "controllerDids": [
+        "did:peer:2zQmAbC...xyz",
+        "did:web:agent.example.org"
+      ],
+      "aliases": [
+        {
+          "system": "AC_loyalty",
+          "id": "1234567890",
+          "scope": "airline-unique"
+        }
+      ]
+    }
+  ]
+}

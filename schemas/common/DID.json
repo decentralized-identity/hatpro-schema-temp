@@ -1,0 +1,11 @@
+{
+  "$id": "https://example.org/hatpro/mvp/schemas/common/DID.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decentralized Identifier (generic)",
+  "type": "string",
+  "pattern": "^did:([a-z0-9]+):[A-Za-z0-9._:-]+$",
+  "examples": [
+    "did:peer:2zQmAbC...xyz",
+    "did:web:traveler.example.org"
+  ]
+}
