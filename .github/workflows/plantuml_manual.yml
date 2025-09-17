@@ -12,7 +12,7 @@ jobs:
         run: |
           set -euo pipefail
           if compgen -G "model/puml/*.puml" > /dev/null; then
-            docker run --rm -v "$PWD":/data plantuml/plantuml:latest -failfast2 -tpng model/puml/*.puml
+            docker run --rm -v "$PWD":/data -w /data plantuml/plantuml:latest -failfast2 -tpng model/puml/*.puml
           else
             echo "No PUML files found under model/puml; skipping."
           fi
