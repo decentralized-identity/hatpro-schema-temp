@@ -1,0 +1,7 @@
+# CODEOWNERS
+# Owners for everything in this repo:
+* @neiljthomson @douglascrice
+
+# Add path-specific owners below as the repo grows, e.g.:
+# /model/puml/ @diagram-maintainer
+# /docs/ @docs-maintainer

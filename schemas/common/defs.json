@@ -1,0 +1,18 @@
+{
+  "$id": "https://example.org/hatpro/mvp/schemas/common/defs.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Common Definitions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uuidV7Pattern": {
+      "const": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "didPattern": {
+      "const": "^did:([a-z0-9]+):[A-Za-z0-9._:-]+$"
+    },
+    "dateTimeFormat": {
+      "const": "date-time"
+    }
+  }
+}

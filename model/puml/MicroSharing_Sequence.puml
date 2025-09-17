@@ -1,0 +1,44 @@
+@startuml MicroSharing_Sequence
+title Micro-Sharing Flow — Traveler or Delegated AI Agent
+
+actor Verifier as V
+participant "Traveler Wallet
+(holder DID)" as T
+participant "AI Agent
+(delegated DID)" as A
+participant "Profile Store
+(UUIDv7 anchor)" as P
+
+== Query ==
+V -> T: Request subset (purpose, fields needed, nonce)
+alt delegation in effect
+  T -> A: Delegate micro-share (scope, expiry, nonce)
+end
+
+== Repackage ==
+group selective disclosure
+  A -> P: Fetch profile data by UUIDv7
+  A <- P: ProfileContent (self-attested items)
+  A -> A: Trim to minimum, attach Evidence references (if any)
+end
+
+== Sign & Return ==
+opt holder signs directly
+  T -> T: Sign micro-profile (holder DID; challenge nonce)
+  T -> V: micro-profile + signature
+else agent signs by delegation
+  A -> A: Sign micro-profile (agent DID; include delegation proof)
+  A -> V: micro-profile + agent signature + delegation token
+end
+
+== Verify ==
+V -> V: Check signature(s), delegation validity, expiry
+V -> V: Verify issuer evidence as requested
+V -> V: Accept per-use; avoid retention
+
+note right
+- Micro-profile is transient and purpose-limited
+- Pairwise DIDs recommended for privacy
+end note
+
+@enduml

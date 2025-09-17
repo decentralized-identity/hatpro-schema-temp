@@ -1,0 +1,51 @@
+@startuml ProfileIdentifier
+' ProfileIdentifier.puml
+' Defines the identifier block referenced by TravelProfile.puml
+
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+  FontSize 12
+}
+
+title ProfileIdentifier — UUIDv7 (anchor) + DID (holder/controller)
+
+package "commonLib.identifiers" {
+  class ProfileIdentifier {
+    +profileId: UUIDv7           ' immutable, primary anchor
+    +holderDid: DID [0..1]       ' traveler's holder DID (recommended)
+    +controllerDids: DID [0..*]  ' additional DIDs allowed to sign via delegation
+    +aliases: Alias [0..*]       ' legacy/external IDs (non-global)
+  }
+
+  class UUIDv7 {
+    +value: string  ' 8-4-4-4-12 hex; version nibble = 7
+  }
+
+  class DID {
+    +value: string  ' did:peer | did:web | did:keri | ...
+  }
+
+  class Alias {
+    +system: string
+    +id: string
+    +scope: string
+    +note: string
+  }
+
+  ProfileIdentifier *-- UUIDv7 : profileId
+  ProfileIdentifier o-- DID : holderDid
+  ProfileIdentifier o-- DID : controllerDids
+  ProfileIdentifier o-- Alias : aliases
+}
+
+note right of ProfileIdentifier
+MVP rules:
+- profileId (UUIDv7) is REQUIRED and immutable.
+- holderDid is the traveler's DID (recommended).
+- controllerDids may include holderDid and any delegated agent DIDs.
+- aliases are mapping-only; not globally unique.
+end note
+
+@enduml

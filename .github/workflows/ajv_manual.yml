@@ -1,0 +1,29 @@
+name: Manual - Validate JSON Schemas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ajv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install ajv-cli
+        run: npm i -g ajv-cli@5
+      - name: Validate all JSON Schemas (if present)
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          SCHEMAS=(schemas/**/*.json schemas/*.json)
+          if [ ${#SCHEMAS[@]} -eq 0 ]; then
+            echo "No JSON Schemas found under schemas/; skipping."
+            exit 0
+          fi
+          for f in "${SCHEMAS[@]}"; do
+            echo "Validating $f"
+            ajv compile -s "$f" --spec=draft2020
+          done

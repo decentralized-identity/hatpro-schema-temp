@@ -1,0 +1,16 @@
+{
+  "$id": "https://example.org/hatpro/mvp/schemas/common/AttestableItem.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AttestableItem (self-attested value with optional evidence)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "value": {},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "EvidenceEnvelope.json"
+      }
+    }
+  }
+}

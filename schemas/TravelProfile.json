@@ -1,0 +1,87 @@
+{
+  "$id": "https://example.org/hatpro/mvp/schemas/TravelProfile.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TravelProfile (MVP)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identifier",
+    "version",
+    "content"
+  ],
+  "properties": {
+    "identifier": {
+      "$ref": "common/ProfileIdentifier.json"
+    },
+    "version": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "content": {
+      "type": "object",
+      "description": "MVP placeholder for profile data; subcomponents will reference AttestableItem",
+      "additionalProperties": true,
+      "properties": {
+        "preferences": {
+          "type": "array",
+          "items": {
+            "$ref": "common/AttestableItem.json"
+          }
+        },
+        "supportNeeds": {
+          "type": "array",
+          "items": {
+            "$ref": "common/AttestableItem.json"
+          }
+        },
+        "contact": {
+          "type": "array",
+          "items": {
+            "$ref": "common/AttestableItem.json"
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "identifier": {
+        "profileId": "018f1d24-5c1a-7b2c-8b1e-9a4b7f3d2c10",
+        "holderDid": "did:peer:2zQmAbC...xyz"
+      },
+      "version": "2025-09-16T21:00:00Z",
+      "content": {
+        "preferences": [
+          {
+            "value": "aisle seat"
+          }
+        ],
+        "supportNeeds": [
+          {
+            "value": "wheelchair: manual, 24in",
+            "evidence": [
+              {
+                "issuerDid": "did:web:clinic.example.org",
+                "holderBinding": {
+                  "holderDid": "did:peer:2zQmAbC...xyz",
+                  "method": "did-subject"
+                },
+                "proof": {
+                  "type": "JWS-detached",
+                  "alg": "ES256"
+                }
+              }
+            ]
+          }
+        ],
+        "contact": [
+          {
+            "value": {
+              "email": "me@example.org"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

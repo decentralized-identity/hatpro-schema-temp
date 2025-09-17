@@ -1,0 +1,87 @@
+@startuml TravelerProfile_Identifier
+title Traveler Profile — Identifier & Evidence Hooks (MVP)
+
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+package "Traveler Profile (Passive Data)" as TP {
+  class TravelerProfile {
+    +profileId: UUIDv7
+    +version: ISODateTime
+    +content: ProfileContent
+    +didControllers: DID[0..*]  // controllers allowed to sign/attest
+  }
+
+  class UUIDv7 {
+    +value: string  // 8-4-4-4-12 hex; version nibble = 7
+  }
+
+  class DID {
+    +value: string  // did:peer | did:web | did:keri | ...
+  }
+
+  class ProfileContent {
+    .. examples ..
+    preferences: AttestableItem[0..*]
+    supportNeeds: AttestableItem[0..*]
+    contact: AttestableItem[0..*]
+  }
+
+  class AttestableItem {
+    +value: any
+    +evidence: EvidenceEnvelope[0..*]  // optional, format-agnostic
+  }
+
+  class EvidenceEnvelope {
+    +issuerDid: string
+    +holderBinding: HolderBinding
+    +proof: Proof
+    +issuedAt: ISODateTime
+    +expiresAt: ISODateTime
+    +sourceSystem: string
+    +semanticsRef: string
+    +dataRef: string
+  }
+
+  class HolderBinding {
+    +holderDid: string
+    +method: HolderBindMethod  // did-subject | did-pop-challenge | transport-bound
+    +challenge: string
+    +boundAt: ISODateTime
+  }
+
+  class Proof {
+    +type: ProofType // JWS-detached | COSE_Sign1 | CMS-PKCS7 | HL7-FHIR-signature | VC-JWT | VC-LD | DSSE | PDF-PKCS7
+    +alg: string
+    +kid: string
+    +canonicalization: string
+    +hashAlg: string
+    +digest: string
+    +bytes: string
+  }
+}
+
+TravelerProfile o-- UUIDv7 : profileId
+TravelerProfile o-- DID : didControllers
+TravelerProfile o-- ProfileContent
+ProfileContent o-- AttestableItem
+AttestableItem "1" o-- "0..*" EvidenceEnvelope
+EvidenceEnvelope o-- HolderBinding
+EvidenceEnvelope o-- Proof
+
+note top of TravelerProfile
+MVP rules
+- profileId is UUIDv7 (immutable, primary anchor)
+- didControllers lists DIDs who can sign (traveler = holder DID; agents allowed by delegation)
+- Profile is passive; signatures are external
+end note
+
+note bottom of EvidenceEnvelope
+Evidence is format-agnostic. VC is allowed but not required.
+Issuer signs with their controller DID; binding to holder DID is required.
+end note
+
+@enduml

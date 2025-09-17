@@ -1,0 +1,25 @@
+name: Manual - Render PlantUML
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render all .puml to PNG
+        run: |
+          set -euo pipefail
+          if compgen -G "model/puml/*.puml" > /dev/null; then
+            docker run --rm -v "$PWD":/data plantuml/plantuml:latest -failfast2 -tpng model/puml/*.puml
+          else
+            echo "No PUML files found under model/puml; skipping."
+          fi
+      - name: Upload diagrams
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puml-png
+          path: model/puml/*.png
+          if-no-files-found: ignore
