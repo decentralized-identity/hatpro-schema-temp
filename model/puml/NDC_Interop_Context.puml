@@ -1,37 +1,16 @@
-@startuml NDC_Interop_Context
-title NDC Interoperability — Transaction IDs vs Traveler Profile ID
+@startuml
+title NDC Interop Context
 
-skinparam componentStyle rectangle
-
-component "Traveler Profile Service" as TPS
-component "NDC Seller" as Seller
-component "Airline NDC API" as Airline
-component "Verifier" as Verifier
-
-queue "NDC Transaction Flow" as NDC {
-  [CorrelationID / TransactionID
-(UUID per transaction)]
+' queue container with a readable label
+queue NDC as "NDC Transaction Flow" {
+  [CorrelationID / TransactionID\n(UUID per transaction)] as CorrTx
 }
 
-database "Profile Registry
-(UUIDv7 -> Profile)" as Registry
+' (optional) a couple of context actors/components to show usage
+actor "NDC Seller" as Seller
+component "NDC API" as NDCAPI
 
-Seller --> NDC : Start transaction
-CorrelationID = UUIDv4/UUIDv7 (ephemeral)
-NDC --> Airline : Requests/Responses tied to CorrelationID
-Seller ..> TPS : Optional: include Traveler profileId (UUIDv7) as metadata
-TPS --> Registry : Resolve profileId to profile content
-TPS ..> Verifier : Micro-profile (signed by holder/agent DID)
-
-note top of Registry
-- Primary anchor: UUIDv7 (stable per traveler)
-- Independent from NDC CorrelationID
-- Mapping for legacy IDs via aliases
-end note
-
-note bottom of NDC
-- CorrelationID is per-transaction; do not treat as traveler ID
-- New transaction => new UUID
-end note
-
+Seller --> NDCAPI : NDC messages\n(CorrelationID/TransactionID in headers)
+NDCAPI --> CorrTx : assign per-transaction UUID
 @enduml
+

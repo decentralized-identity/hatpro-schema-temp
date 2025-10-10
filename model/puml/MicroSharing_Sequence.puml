@@ -2,12 +2,9 @@
 title Micro-Sharing Flow — Traveler or Delegated AI Agent
 
 actor Verifier as V
-participant "Traveler Wallet
-(holder DID)" as T
-participant "AI Agent
-(delegated DID)" as A
-participant "Profile Store
-(UUIDv7 anchor)" as P
+participant "Traveler Wallet (holder DID)" as T
+participant "AI Agent (delegated DID)" as A
+participant "Profile Store (UUIDv7 anchor)" as P
 
 == Query ==
 V -> T: Request subset (purpose, fields needed, nonce)
