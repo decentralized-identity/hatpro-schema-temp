@@ -8,18 +8,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Render all .puml to PNG
+
+      - name: List .puml files (for logs)
+        shell: bash
         run: |
           set -euo pipefail
-          if compgen -G "model/puml/*.puml" > /dev/null; then
-            docker run --rm -v "$PWD":/data plantuml/plantuml:latest -failfast2 -tpng model/puml/*.puml
-          else
-            echo "No PUML files found under model/puml; skipping."
+          find model -type f -name '*.puml' || true
+
+      - name: Install Java (no Docker needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre curl
+
+      - name: Download PlantUML CLI
+        run: |
+          curl -L -o plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+
+      - name: Render all .puml to PNG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' FILES < <(find model -type f -name '*.puml' -print0 2>/dev/null || true)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No .puml files found under model/; skipping."
+            exit 0
           fi
+          for f in "${FILES[@]}"; do
+            echo "Rendering $f"
+            java -jar plantuml.jar -failfast2 -tpng "$f"
+          done
+
       - name: Upload diagrams
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: puml-png
-          path: model/puml/*.png
+          path: |
+            model/**/*.png
+            model/*.png
           if-no-files-found: ignore
