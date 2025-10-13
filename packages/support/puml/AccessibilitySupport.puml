@@ -1,0 +1,21 @@
+@startuml
+skinparam classAttributeIconSize 0
+class AccessibilitySupport {
+  +accessibilityNotes: string
+  +assistanceNeeds: string[]
+  +mobilityAids: string[]
+}
+note right of AccessibilitySupport
+SCHEMAHINTS v0.1
+title: AccessibilitySupport
+additionalProperties: false
+field accessibilityNotes:
+  type: string
+field assistanceNeeds:
+  type: array
+  itemsType: string
+field mobilityAids:
+  type: array
+  itemsEnumRef: "accessibility/MobilityAid.json"
+end note
+@enduml

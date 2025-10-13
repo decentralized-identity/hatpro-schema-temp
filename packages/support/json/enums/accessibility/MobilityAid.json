@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MobilityAid",
+  "enum": [
+    "Wheelchair",
+    "Walker",
+    "Cane",
+    "Crutches",
+    "Scooter"
+  ]
+}

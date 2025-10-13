@@ -1,0 +1,7 @@
+@startuml
+skinparam classAttributeIconSize 0
+!include ../core/commonLib/InternationalString.puml
+!include ../identity/TravelerName.puml
+!include ../identity/IdentityInfo.puml
+IdentityInfo o-- TravelerName
+@enduml

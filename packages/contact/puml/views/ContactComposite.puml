@@ -1,0 +1,5 @@
+@startuml
+skinparam classAttributeIconSize 0
+!include ../contact/Address.puml
+!include ../contact/ContactInfo.puml
+@enduml

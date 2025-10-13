@@ -1,0 +1,23 @@
+@startuml
+skinparam classAttributeIconSize 0
+class ContactInfo {
+  +primaryEmail: string
+  +primaryPhone: string
+  +addresses: Address[]
+}
+ContactInfo *-- Address
+note right of ContactInfo
+SCHEMAHINTS v0.1
+title: ContactInfo
+additionalProperties: false
+field primaryEmail:
+  type: string
+  format: email
+field primaryPhone:
+  type: string
+  desc: "E.164 pattern TBD"
+field addresses:
+  type: array
+  itemsRefId: Address
+end note
+@enduml

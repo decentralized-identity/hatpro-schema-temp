@@ -33,3 +33,6 @@ This repo includes **manual** GitHub Actions under `.github/workflows/`:
 - `ajv_manual.yml`: Validate JSON Schemas under `schemas/` (skips if none are present).
 
 They are **manual-only** (`workflow_dispatch`) to avoid noise during early MVP. Trigger them from the GitHub "Actions" tab.
+
+## SCHEMAHINTS location
+The SCHEMAHINTS spec lives in ./docs/specs/SCHEMAHINTS/.

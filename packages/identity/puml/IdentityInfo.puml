@@ -1,0 +1,32 @@
+@startuml
+skinparam classAttributeIconSize 0
+class IdentityInfo {
+  +displayName: string
+  +givenNames: string[]
+  +surnames: string[]
+  +dateOfBirth: date
+  +nationalities: string[]
+}
+note right of IdentityInfo
+SCHEMAHINTS v0.1
+title: IdentityInfo
+additionalProperties: false
+required:[displayName]
+field displayName:
+  type: string
+  desc: "Preferred presentation name."
+field givenNames:
+  type: array
+  itemsType: string
+field surnames:
+  type: array
+  itemsType: string
+field dateOfBirth:
+  type: string
+  format: date
+field nationalities:
+  type: array
+  itemsType: string
+  desc: "ISO 3166-1 alpha-3 (TBD enforce pattern)."
+end note
+@enduml

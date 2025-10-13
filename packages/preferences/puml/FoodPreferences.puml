@@ -1,0 +1,18 @@
+@startuml
+skinparam classAttributeIconSize 0
+class FoodPreferences {
+  +diet: Diet
+  +allergies: string[]
+}
+FoodPreferences o-- Diet
+note right of FoodPreferences
+SCHEMAHINTS v0.1
+title: FoodPreferences
+additionalProperties: true
+field diet:
+  refId: Diet
+field allergies:
+  type: array
+  itemsEnumRef: "food/MajorAllergen.json"
+end note
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+skinparam classAttributeIconSize 0
+class TravelerName {
+  +full: InternationalString
+  +components: string[]
+}
+note right of TravelerName
+SCHEMAHINTS v0.1
+title: TravelerName
+additionalProperties: false
+field full:
+  refId: InternationalString
+field components:
+  type: array
+  itemsType: string
+end note
+@enduml

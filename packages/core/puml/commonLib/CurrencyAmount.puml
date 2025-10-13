@@ -1,0 +1,20 @@
+' CurrencyAmount.puml
+@startuml
+skinparam classAttributeIconSize 0
+class CurrencyAmount {
+  +amount: number
+  +currency: string
+}
+note right of CurrencyAmount
+SCHEMAHINTS v0.1
+title: CurrencyAmount
+additionalProperties: false
+required:[amount,currency]
+field amount:
+  type: number
+field currency:
+  type: string
+  pattern: ^[A-Z]{3}$
+  desc: "ISO 4217 code"
+end note
+@enduml

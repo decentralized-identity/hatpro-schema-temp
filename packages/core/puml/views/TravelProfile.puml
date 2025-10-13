@@ -1,0 +1,65 @@
+@startuml
+' TravelProfile.puml (root composition view)
+skinparam classAttributeIconSize 0
+
+!include ../identity/IdentityInfo.puml
+!include ../contact/ContactInfo.puml
+!include ../preferences/FoodPreferences.puml
+!include ../support/AccessibilitySupport.puml
+
+class TravelProfile {
+  +uuid7: string
+  +verifiableIdentifier: string
+  +version: string
+  +createdAt: datetime
+  +updatedAt: datetime
+  +identity: IdentityInfo
+  +contact: ContactInfo
+  +preferences: FoodPreferences
+  +support: AccessibilitySupport
+}
+
+TravelProfile *-- IdentityInfo
+TravelProfile *-- ContactInfo
+TravelProfile *-- FoodPreferences
+TravelProfile *-- AccessibilitySupport
+
+note right of TravelProfile
+SCHEMAHINTS v0.1
+title: TravelProfile
+additionalProperties: false
+required:[version, identity]
+xor:(uuid7|verifiableIdentifier)
+
+field uuid7:
+  type: string
+  format: uuid
+
+field verifiableIdentifier:
+  type: string
+  pattern: ^did:[a-z0-9]+:[A-Za-z0-9.\-_:]+$
+
+field version:
+  type: string
+  pattern: ^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$
+  default: 0.1.0
+
+field createdAt:
+  type: datetime
+
+field updatedAt:
+  type: datetime
+
+field identity:
+  refId: IdentityInfo
+
+field contact:
+  refId: ContactInfo
+
+field preferences:
+  refId: FoodPreferences
+
+field support:
+  refId: AccessibilitySupport
+end note
+@enduml

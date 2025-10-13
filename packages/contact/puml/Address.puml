@@ -1,0 +1,31 @@
+@startuml
+skinparam classAttributeIconSize 0
+class Address {
+  +label: string
+  +addressLines: string[]
+  +locality: string
+  +region: string
+  +postalCode: string
+  +country: string
+}
+note right of Address
+SCHEMAHINTS v0.1
+title: Address
+additionalProperties: false
+field label:
+  type: string
+  default: "home"
+field addressLines:
+  type: array
+  itemsType: string
+field locality:
+  type: string
+field region:
+  type: string
+field postalCode:
+  type: string
+field country:
+  type: string
+  pattern: ^[A-Z]{2}$
+end note
+@enduml
