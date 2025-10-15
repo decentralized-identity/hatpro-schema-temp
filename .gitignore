@@ -1,0 +1,24 @@
+# Node / tooling
+node_modules/
+dist/
+*.log
+*.tmp
+*.bak
+
+# Generated JSON Schemas (both current and future layouts)
+packages/**/json/schemas/
+packages/**/content/json/schemas/
+
+# PlantUML renders
+*.png
+*.svg
+*.txt
+docs/diagrams/
+plantuml-out/
+
+# Stray copies you mentioned
+tools/* - Copy*.mjs
+
+# OS cruft
+.DS_Store
+Thumbs.db
