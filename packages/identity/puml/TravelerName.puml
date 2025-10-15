@@ -8,10 +8,26 @@ note right of TravelerName
 SCHEMAHINTS v0.1
 title: TravelerName
 additionalProperties: false
-field full:
-  refId: InternationalString
-field components:
+required:[givenName, surname]
+
+field givenName:
+  type: string
+  pattern: "^.+$"        # non-empty
+
+field surname:
+  type: string
+  pattern: "^.+$"        # non-empty
+
+# Optional fields (examples)
+field middleNames:
   type: array
   itemsType: string
+
+field prefix:
+  type: string
+
+field suffix:
+  type: string
 end note
+
 @enduml

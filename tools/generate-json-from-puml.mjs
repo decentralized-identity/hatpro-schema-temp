@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // tools/generate-json-from-puml.mjs
-// Minimal SCHEMAHINTS v0.1 → JSON Schema emitter (Draft 2020-12)
+// Minimal SCHEMAHINTS v0.1 -> JSON Schema emitter (pure ESM)
 
-import { promises as fs } from 'node:fs';
+import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,18 +17,19 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--baseId' && args[i+1]) baseId = args[i+1].replace(/\/?$/, '/');
 }
 
-function walk(dir, acc=[]) {
-  const ent = require('node:fs').readdirSync(dir, { withFileTypes: true });
-  for (const e of ent) {
+function walk(dir, acc = []) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const e of entries) {
     const p = join(dir, e.name);
     if (e.isDirectory()) walk(p, acc);
     else acc.push(p);
   }
   return acc;
 }
-const readText = (p) => fs.readFile(p, 'utf8');
 
-// Grab `class Name { … }` and the nearest `note … end note`
+const readText = (p) => fsp.readFile(p, 'utf8');
+
+// Grab `class Name { ... }` and the nearest `note ... end note`
 function extractBlocks(src) {
   const classes = [];
   const classRe = /class\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{[^}]*\}([\s\S]*?)(?=class\s+|@enduml|$)/g;
@@ -44,7 +46,7 @@ function extractBlocks(src) {
   return classes;
 }
 
-// Parse SCHEMAHINTS v0.1 `note` block
+// Parse SCHEMAHINTS v0.1 note
 function parseHints(noteText) {
   const out = { title:null, additionalProperties:undefined, required:[], xor:null, fields:{} };
   const lines = noteText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
@@ -90,7 +92,7 @@ function typeMapping(t) {
   if (!t) return undefined;
   const low = t.toLowerCase();
   if (low === 'datetime') return { type:'string', format:'date-time' };
-  if (low === 'date')     return { type:'string', format:'date' };
+  if (low === 'date') return { type:'string', format:'date' };
   if (['string','number','integer','boolean','array','object'].includes(low)) return { type:low };
   return { type:'string' };
 }
@@ -99,8 +101,17 @@ function toEnumRef(p) {
   if (!p) return p;
   if (p.startsWith('#')) return p;
   if (/^https?:\/\//i.test(p)) return p;
-  // leave relative enum refs as-is; your loader/validator resolves them
+  // leave relative enum refs as-is (resolved by your tooling/loader)
   return p;
+}
+
+function toAbsoluteRef(r) {
+  if (!r) return r;
+  if (r.startsWith('#')) return r;                      // already a fragment
+  if (/^https?:\/\//i.test(r)) return r;                // already absolute URL
+  if (r.endsWith('.json')) return baseId + r.replace(/^\.?\/*/, '');  // file-ish
+  // bare type name like "IdentityInfo" -> attach our baseId + .schema.json
+  return baseId + r + '.schema.json';
 }
 
 function schemaFrom(hints, className) {
@@ -115,26 +126,30 @@ function schemaFrom(hints, className) {
     required: hints.required || [],
   };
 
-  for (const [name, f] of Object.entries(hints.fields || {})) {
-    let prop;
-    if (f.$ref) {
-      prop = { $ref: f.$ref.startsWith('#') ? f.$ref : toEnumRef(f.$ref) };
-    } else if (f.enumRef) {
-      prop = { $ref: toEnumRef(f.enumRef) };
-    } else if (f.itemsRef || f.itemsEnumRef || f.itemsType) {
-      prop = { type:'array', items:{} };
-      if (f.itemsRef)        prop.items = { $ref: f.itemsRef.startsWith('#') ? f.itemsRef : toEnumRef(f.itemsRef) };
-      else if (f.itemsEnumRef) prop.items = { $ref: toEnumRef(f.itemsEnumRef) };
-      else if (f.itemsType)  prop.items = typeMapping(f.itemsType);
-    } else {
-      prop = typeMapping(f.type) || {};
-    }
-    if (f.format)  prop.format = f.format;
-    if (f.pattern) prop.pattern = f.pattern;
-    if (f.default !== undefined) prop.default = f.default;
-    if (f.desc)    prop.description = f.desc;
-    schema.properties[name] = prop;
+for (const [name, f] of Object.entries(hints.fields || {})) {
+  let prop;
+
+  if (f.$ref) {
+    prop = { $ref: toAbsoluteRef(f.$ref) };
+  } else if (f.enumRef) {
+    prop = { $ref: toAbsoluteRef(f.enumRef) };
+  } else if (f.itemsRef || f.itemsEnumRef || f.itemsType) {
+    prop = { type: 'array', items: {} };
+    if (f.itemsRef)          prop.items = { $ref: toAbsoluteRef(f.itemsRef) };
+    else if (f.itemsEnumRef) prop.items = { $ref: toAbsoluteRef(f.itemsEnumRef) };
+    else if (f.itemsType)    prop.items = typeMapping(f.itemsType);
+  } else {
+    prop = typeMapping(f.type) || {};
   }
+
+  if (f.format)  prop.format = f.format;
+  if (f.pattern) prop.pattern = f.pattern;
+  if (f.default !== undefined) prop.default = f.default;
+  if (f.desc)    prop.description = f.desc;
+
+  schema.properties[name] = prop;
+}
+
 
   if (hints.xor && hints.xor.length >= 2) {
     schema.oneOf = hints.xor.map(k => ({ required:[k] }));
@@ -144,27 +159,25 @@ function schemaFrom(hints, className) {
 }
 
 async function main() {
-  const exists = require('node:fs').existsSync;
-  if (!exists(packagesDir)) {
+  if (!fs.existsSync(packagesDir)) {
     console.error('No packages/ directory found. Run from repo root.');
     process.exit(1);
   }
-  const segments = require('node:fs').readdirSync(packagesDir).filter(d => exists(join(packagesDir,d,'puml')));
+  const segments = fs.readdirSync(packagesDir).filter(d => fs.existsSync(join(packagesDir, d, 'puml')));
   for (const seg of segments) {
     const pumlDir = join(packagesDir, seg, 'puml');
     const outDir  = join(packagesDir, seg, 'json', 'schemas');
-    require('node:fs').mkdirSync(outDir, { recursive: true });
-
+    fs.mkdirSync(outDir, { recursive: true });
     const pumlFiles = walk(pumlDir).filter(f => f.toLowerCase().endsWith('.puml'));
     for (const f of pumlFiles) {
       const src     = await readText(f);
       const classes = extractBlocks(src);
       if (!classes.length) continue;
-      const { name, note } = classes[0]; // primary class per file
-      const hints = parseHints(note || '');
+      const { name, note } = classes[0];       // primary class per file
+      const hints  = parseHints(note || '');
       const schema = schemaFrom(hints, name);
       const outPath = join(outDir, (hints.title || name) + '.schema.json');
-      await fs.writeFile(outPath, JSON.stringify(schema, null, 2), 'utf8');
+      await fsp.writeFile(outPath, JSON.stringify(schema, null, 2), 'utf8');
       console.log('Emitted:', outPath);
     }
   }
@@ -172,4 +185,3 @@ async function main() {
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
-
