@@ -1,6 +1,9 @@
-# ci.yml — v2025-10-20a
-# Mirrors ajv_manual.yml fixes: Node 20, ajv-cli + ajv-formats, globstar, de-dup + preloaded refs
-# Also (optionally) runs Node .mjs steps if present, without breaking if they’re absent.
+# ci.yml — v2025-10-21a
+# - Node 20 + npm ci
+# - ajv-cli + ajv-formats for schema compile
+# - robust globbing (globstar) + de-dup + preload refs
+# - run generator (tools/generate-json-from-puml.mjs) if present
+# - run node validator only if generated schemas exist (otherwise skip)
 
 name: CI
 
@@ -9,6 +12,7 @@ on:
     branches: ["**"]
   pull_request:
     branches: ["**"]
+  workflow_dispatch: {}
 
 jobs:
   build:
@@ -24,23 +28,12 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      # If you keep project-level devDeps (ajv, ajv-formats, etc.) in root package.json,
-      # this will install them using the root package-lock.json
       - name: Install deps
         run: npm ci
 
-      # Keep your ajv-cli-based schema compilation (same behavior as ajv_manual.yml)
+      # ----- Schema compile with ajv-cli (raw schemas) -----
       - name: Install ajv-cli and formats
-        run: |
-          npm i -g ajv-cli@5 ajv-formats@3
-
-      - name: Debug env
-        run: |
-          node -v
-          npm -v
-          ajv --version || true
-          pwd
-          ls -la
+        run: npm i -g ajv-cli@5 ajv-formats@3
 
       - name: Validate all JSON Schemas (if present)
         shell: bash
@@ -48,14 +41,14 @@ jobs:
           set -euo pipefail
           shopt -s nullglob globstar
 
-          # Collect schema candidates from common repo layouts
+          # Collect candidate schema files from common layouts
           declare -a RAW
           RAW+=(schemas/**/*.json)
           RAW+=(schemas/*.json)
           RAW+=(packages/**/json/schemas/**/*.json)
           RAW+=(packages/**/json/schemas/*.json)
 
-          # De-duplicate the list
+          # De-duplicate
           declare -A SEEN=()
           declare -a SCHEMAS=()
           for f in "${RAW[@]}"; do
@@ -71,8 +64,7 @@ jobs:
             exit 0
           fi
 
-          # Compile each schema with all other schemas preloaded as refs,
-          # avoiding duplicate loads of the current schema
+          # Compile each schema with all others preloaded as refs (skip self)
           fail=0
           for s in "${SCHEMAS[@]}"; do
             echo "Compiling $s"
@@ -85,23 +77,25 @@ jobs:
               fail=1
             fi
           done
-
           if [ "$fail" -ne 0 ]; then
             echo "One or more schemas failed to compile."
             exit 1
           fi
-
           echo "All schemas compiled successfully."
+      # -----------------------------------------------------
 
-      # ---- Optional Node build/validate steps (kept but guarded) ----
-      # These run ONLY if the .mjs files exist, so CI won’t break if not present.
+      # ----- Generate per-package schemas (your tool) -----
+      - name: Generate Schemas
+        if: ${{ hashFiles('tools/generate-json-from-puml.mjs') != '' }}
+        run: node tools/generate-json-from-puml.mjs
+      # ----------------------------------------------------
 
-      - name: Build schemas via Node script (if present)
-        if: ${{ hashFiles('tools/build-schemas.mjs') != '' }}
-        run: node tools/build-schemas.mjs
-
-      - name: Validate samples via Node script (if present)
-        if: ${{ hashFiles('tools/validate-with-ajc.mjs') != '' }}
+      # ----- Validate samples via Node (only if generated schemas exist) -----
+      - name: Validate samples via Node script (if generated schemas exist)
+        if: ${{ hashFiles('packages/**/json/schemas/**/*.json') != '' && hashFiles('tools/validate-with-ajc.mjs') != '' }}
         run: node tools/validate-with-ajc.mjs
-      # ----------------------------------------------------------------
 
+      - name: Skip Node sample validation (no generated schemas found)
+        if: ${{ hashFiles('packages/**/json/schemas/**/*.json') == '' }}
+        run: echo "Skipping Node sample validation: no schemas under packages/**/json/schemas. Run tools/generate-json-from-puml.mjs first."
+      # ----------------------------------------------------------------------
