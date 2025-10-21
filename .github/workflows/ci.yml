@@ -88,14 +88,15 @@ jobs:
       - name: Generate Schemas
         if: ${{ hashFiles('tools/generate-json-from-puml.mjs') != '' }}
         run: node tools/generate-json-from-puml.mjs
-      # ----------------------------------------------------
 
-      # ----- Validate samples via Node (only if generated schemas exist) -----
-      - name: Validate samples via Node script (if generated schemas exist)
-        if: ${{ hashFiles('packages/**/json/schemas/**/*.json') != '' && hashFiles('tools/validate-with-ajc.mjs') != '' }}
-        run: node tools/validate-with-ajc.mjs
+      # ----- Validate samples via Node (conditional in one step) -----
+      - name: Validate samples via Node (conditional)
+        shell: bash
+        run: |
+          if [ -n "${{ hashFiles('packages/**/json/schemas/**/*.json') }}" ] && [ -n "${{ hashFiles('tools/validate-with-ajc.mjs') }}" ]; then
+            echo "Found generated schemas; running tools/validate-with-ajc.mjs ..."
+            node tools/validate-with-ajc.mjs
+          else
+            echo "Skipping Node sample validation: no generated schemas under packages/**/json/schemas or validator script missing."
+          fi
 
-      - name: Skip Node sample validation (no generated schemas found)
-        if: ${{ hashFiles('packages/**/json/schemas/**/*.json') == '' }}
-        run: echo "Skipping Node sample validation: no schemas under packages/**/json/schemas. Run tools/generate-json-from-puml.mjs first."
-      # ----------------------------------------------------------------------
