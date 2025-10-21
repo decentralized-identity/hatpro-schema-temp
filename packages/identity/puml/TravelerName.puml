@@ -1,33 +1,44 @@
 @startuml
 skinparam classAttributeIconSize 0
+
 class TravelerName {
-  +full: InternationalString
-  +components: string[]
+  +display: string
+  +givenNames: string[]
+  +surnames: string[]
+  +prefixes: string[]     ' optional, e.g., Dr, Mr
+  +suffixes: string[]     ' optional, e.g., Jr, PhD
 }
+
 note right of TravelerName
 SCHEMAHINTS v0.1
 title: TravelerName
 additionalProperties: false
-required:[givenName, surname]
+required:[display, givenNames, surnames]
 
-field givenName:
+field display:
   type: string
-  pattern: "^.+$"        # non-empty
+  desc: "Preferred presentation name."
 
-field surname:
-  type: string
-  pattern: "^.+$"        # non-empty
+field givenNames:
+  type: array
+  minItems: 1
+  itemsType: string
+  desc: "Given/personal names in order."
 
-# Optional fields (examples)
-field middleNames:
+field surnames:
+  type: array
+  minItems: 1
+  itemsType: string
+  desc: "Family/surnames in order."
+
+field prefixes:
   type: array
   itemsType: string
+  desc: "Honorifics before the name (e.g., Dr, Mr)."
 
-field prefix:
-  type: string
-
-field suffix:
-  type: string
+field suffixes:
+  type: array
+  itemsType: string
+  desc: "Post-nominals (e.g., Jr, PhD)."
 end note
-
 @enduml
