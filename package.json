@@ -1,6 +1,12 @@
 {
+  "type": "module",
+  "scripts": {
+    "ci:validate": "node tools/validate-with-ajc.mjs"
+  },
   "devDependencies": {
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "ajv-errors": "^3.0.0"
   }
 }
+
