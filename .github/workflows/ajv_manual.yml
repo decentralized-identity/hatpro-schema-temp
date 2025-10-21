@@ -1,29 +1,52 @@
-name: Manual - Validate JSON Schemas
+name: Ajv Manual Validation
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
-  ajv:
+  validate:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
+
+      # KEEP your original global ajv-cli approach
       - name: Install ajv-cli
         run: npm i -g ajv-cli@5
+
+      # Validate any JSON Schemas we can find
       - name: Validate all JSON Schemas (if present)
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
-          SCHEMAS=(schemas/**/*.json schemas/*.json)
+
+          # Search both the old location and your repo layout
+          # - schemas/**              (your original)
+          # - packages/**/json/schemas/**  (common in your repo)
+          SCHEMAS=(schemas/**/*.json schemas/*.json packages/**/json/schemas/**/*.json packages/**/json/schemas/*.json)
+
           if [ ${#SCHEMAS[@]} -eq 0 ]; then
-            echo "No JSON Schemas found under schemas/; skipping."
+            echo "No JSON Schemas found under schemas/ or packages/**/json/schemas/; skipping."
             exit 0
           fi
+
           for f in "${SCHEMAS[@]}"; do
-            echo "Validating $f"
+            echo "Compiling $f"
             ajv compile -s "$f" --spec=draft2020
           done
+
+      # OPTIONAL: if you also want to run your sample validator script,
+      # uncomment the 3 lines below and ensure the root package.json has
+      # "scripts": { "ci:validate": "node tools/validate-with-ajc.mjs" }
+      #
+      # - name: Install local dev deps (for sample validation)
+      #   run: npm ci
+      # - name: Validate samples with Ajv
+      #   run: npm run ci:validate
