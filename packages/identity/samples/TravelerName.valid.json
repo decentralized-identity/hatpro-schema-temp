@@ -1,10 +1,7 @@
 {
-  "full": {
-    "value": "Alex Traveler",
-    "lang": "en"
-  },
-  "components": [
-    "Alex",
-    "Traveler"
-  ]
+  "display": "Dr Alexandra Q. Traveler, PhD",
+  "givenNames": ["Alexandra", "Q."],
+  "surnames": ["Traveler"],
+  "prefixes": ["Dr"],
+  "suffixes": ["PhD"]
 }

@@ -1,0 +1,32 @@
+' TechString.puml
+@startuml
+skinparam classAttributeIconSize 0
+
+class TechString {
+  +value: string
+  +lang: string
+  +script: string
+}
+
+note right of TechString
+SCHEMAHINTS v0.1
+title: TechString
+additionalProperties: false
+required: [value, lang, script]
+
+field value:
+  type: string
+
+field lang:
+  type: string
+  const: "en-US"
+  desc: "Fixed IETF BCP 47 language tag"
+
+field script:
+  type: string
+  const: "UTF-8"
+  desc: "Fixed encoding indicator (note: using 'UTF-8' by design)"
+end note
+
+@enduml
+
