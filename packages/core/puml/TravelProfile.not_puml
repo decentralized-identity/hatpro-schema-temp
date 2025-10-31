@@ -30,18 +30,18 @@ field uuid7:
 
 field verifiableIdentifier:
   type: string
-  valuePattern: ^did:[a-z0-9]+:[A-Za-z0-9.\-_:]+$
+  pattern: ^did:[a-z0-9]+:[A-Za-z0-9.\-_:]+$
 
 field version:
   type: string
-  valuePattern: ^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$
+  pattern: ^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$
   default: 0.1.0
 
 field testTechStr:
-  ref$: /core/commonLib/TechString
+  $ref: core/commonLib/TechString
 
 field testInternationalStr:
-  ref$: /core/commonLib/InternationalString
+  $ref: core/commonLib/InternationalString
 
 end note
 @enduml

@@ -1,0 +1,33 @@
+' PresentationString.puml
+@startuml
+skinparam classAttributeIconSize 0
+
+'Bring in the shared types
+!include ./InternationalString.puml
+!include ./TechString.puml
+
+class PresentationString{
+  +techValue: TechString
+  +presentationValue: InternationalString
+}
+
+note right of PresentationString
+SCHEMAHINTS v0.1
+title: PresentationString
+additionalProperties: false
+required: [title]   ' subtitle is optional; tweak as you like
+
+field techValue:
+  enumDefine:
+    enumId: /core/commonLib/TechString
+
+field presenationValue:
+  enumDefine:
+    enumId: /core/commonLib/InternationalString
+  ' string (for enums will be translated) that will be
+  ' presented to a human traveler or service agent
+
+end note
+
+@enduml
+

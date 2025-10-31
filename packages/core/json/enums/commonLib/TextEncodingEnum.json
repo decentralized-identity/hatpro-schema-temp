@@ -1,0 +1,33 @@
+{
+  "$id": "https://schemas.example.org/hatpro/core/commonLib/TextEncodingEnum.json",
+  "title": "TextEncodingEnum",
+  "type": "string",
+  "enum": [
+    "UTF-8",
+    "windows-1252",
+    "ISO-8859-1",
+    "ISO-8859-15",
+    "Shift_JIS",
+    "GB18030",
+    "Big5"
+  ],
+  "x-enumNames": [
+    "UTF-8",
+    "Windows Western (1252)",
+    "ISO Latin-1",
+    "ISO Latin-9",
+    "Shift JIS",
+    "GB 18030",
+    "Big5"
+  ],
+  "x-enumDescriptions": [
+    "Unicode Transformation Format, 8-bit; REQUIRED internal encoding.",
+    "Windows Western code page 1252.",
+    "ISO 8859-1 Latin-1 single-byte.",
+    "ISO 8859-15 Latin-9; adds Euro sign.",
+    "Japanese legacy encoding (CP932 family).",
+    "PRC national standard; modern superset covering Unicode.",
+    "Traditional Chinese legacy encoding."
+  ],
+  "x-sourcePath": "/core/puml/commonLib/TextEncodingEnum.puml"
+}

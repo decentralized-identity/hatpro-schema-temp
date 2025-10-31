@@ -1,12 +1,47 @@
 {
   "type": "module",
   "scripts": {
-    "ci:validate": "node tools/validate-with-ajc.mjs"
+    "lint:hints": "node tools/lint-schemahints.mjs ./packages --checkTargets",
+    "lint:hints:strict": "node tools/lint-schemahints.mjs ./packages --checkTargets --strict --forbidEnumFrom",
+    "lint:hints:json": "node tools/lint-schemahints.mjs ./packages --checkTargets --format=json --out=lint-report.json --forbidEnumFrom",
+    "gen:schemas": "node tools/generate-json-schema-from-puml.mjs --baseId https://schemas.example.org/hatpro/ --packagesDir ./packages",
+    "gen:enums": "node tools/generate_json-enums-from-puml.mjs --baseId https://schemas.example.org/hatpro/ --packagesDir ./packages",
+    "gen:schemas:file": "node tools/generate-json-schema-from-puml.mjs --baseId https://schemas.example.org/hatpro/ --packagesDir ./packages --file",
+    "gen:enums:file": "node tools/generate_json-enums-from-puml.mjs --baseId https://schemas.example.org/hatpro/ --packagesDir ./packages --file",
+    "validate:schemas": "ajv compile -s \"packages/**/json/schemas/**/*.schema.json\" --spec=draft2020",
+    "validate:enums": "ajv compile -s \"packages/**/json/enums/**/*.json\" --spec=draft2020",
+    "validate:examples": "node tools/validate-examples.mjs",
+    "validate:examples:v1": "node tools/validate-examples.mjs --version v1",
+    "validate:examples:core": "node tools/validate-examples.mjs --segment core",
+    "compile:schemas": "node tools/compile-schemas.mjs",
+    "gen:samples:auto": "node tools/gen-auto-samples.mjs --validate",
+    "gen:samples:auto:strict": "node tools/gen-auto-samples.mjs --validate --strict",
+    "validate:samples": "node tools/validate-samples.mjs",
+    "bundle:travelprofile": "node tools/bundle-travelprofile.mjs --entry packages/core/json/schemas/TravelProfile.schema.json --out deliverables/TravelProfile.bundle.schema.json --mode bundle",
+    "bundle:travelprofile:deref": "node tools/bundle-travelprofile.mjs --entry packages/core/json/schemas/TravelProfile.schema.json --out deliverables/TravelProfile.deref.schema.json --mode deref",
+    "test": "npm run validate:enums && npm run validate:schemas && npm run validate:examples",
+    "verify": "npm run lint:hints:strict && npm run gen:enums && npm run gen:schemas && npm run validate:enums && npm run validate:schemas",
+    "verify:auto": "npm run compile:schemas && npm run gen:samples:auto && npm run validate:samples",
+    "verify:auto:strict": "npm run compile:schemas && npm run gen:samples:auto:strict && npm run validate:samples",
+    "build": "npm run lint:hints && npm run gen:enums && npm run gen:schemas && npm run validate:enums && npm run validate:schemas",
+    "build:ci": "npm run lint:hints:strict && npm run gen:enums && npm run gen:schemas && npm run validate:enums && npm run validate:schemas",
+    "clean": "rimraf --glob \"packages/**/json/schemas\" \"packages/**/json/enums\" \"packages/**/json/samples\" \"deliverables\"",
+    "build:fast": "npm run lint:hints && npm run gen:enums && npm run gen:schemas",
+    "watch:enums": "chokidar \"packages/**/puml/**/*.puml\" -c \"npm run gen:enums\"",
+    "watch:schemas": "chokidar \"packages/**/puml/**/*.puml\" -c \"npm run gen:schemas\"",
+    "watch": "chokidar \"packages/**/puml/**/*.puml\" -c \"npm run gen:enums && npm run gen:schemas\""
   },
   "devDependencies": {
+    "@apidevtools/json-schema-ref-parser": "^11.9.3",
     "ajv": "^8.17.1",
+    "ajv-cli": "^5.0.0",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
-    "globby": "^14.1.0"
+    "chokidar-cli": "^3.0.0",
+    "globby": "^14.1.0",
+    "rimraf": "^6.0.1"
+  },
+  "overrides": {
+    "fast-json-patch": "^3.1.1"
   }
 }

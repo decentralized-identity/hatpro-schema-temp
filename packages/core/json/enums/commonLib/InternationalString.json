@@ -1,0 +1,6 @@
+{
+  "$id": "https://schemas.example.org/hatpro/core/commonLib/InternationalString.json",
+  "title": "InternationalString",
+  "type": "string",
+  "enum": []
+}

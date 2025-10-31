@@ -1,0 +1,21 @@
+' nonDIDIdentifier.puml
+@startuml
+skinparam classAttributeIconSize 0
+
+class nonDIDIdentifier {
+  +value: string
+}
+
+note right of nonDIDIdentifier
+SCHEMAHINTS v0.1
+title: nonDIDIdentifier
+additionalProperties: false
+required: [value]
+
+field value:
+  type: string
+  valuePattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+end note
+
+@enduml
+
