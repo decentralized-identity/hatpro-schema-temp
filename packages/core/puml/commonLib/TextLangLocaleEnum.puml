@@ -1,0 +1,24 @@
+@startuml
+title TextLangLocaleEnum — v1.2 (enumId / targetPath / sourcePath)
+
+' Dummy Class used in generation of an enum.json file. Class name must end with "_genEnum"
+class TextLangLocale_genEnum {
+}
+
+note right of TextLangLocale_genEnum
+SCHEMAHINTS
+  title: TextEncoding_genEnum
+  field encoding:
+    desc: Valid IETF BCP-47 language/locale values
+    enumDefine:
+      enumId: /core/commonLib/TextLangLocaleEnum
+      targetPath: /core/json/enums/commonLib/TextLangLocaleEnum
+      sourcePath: /core/puml/commonLib/TextEncodingEnum.puml
+      title: TextLangLocaleEnum
+      type: string
+      description: TBC
+      generate: true
+      enum: [en-US, "ja", "ja-Latn", "zh-Hans", "zh-Hant", "fr", "fr-CA", "hi", "hi-Latn", "sw", "sw-KE"]
+end note
+
+@enduml
