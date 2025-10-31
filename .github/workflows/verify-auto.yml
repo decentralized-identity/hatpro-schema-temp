@@ -1,0 +1,24 @@
+name: verify-auto
+on:
+  push:
+  pull_request:
+jobs:
+  verify-auto:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm ci
+      - name: Generate enums & schemas
+        run: |
+          npm run gen:enums
+          npm run gen:schemas
+      - name: Smoke #1 — compile all schemas
+        run: npm run compile:schemas
+      - name: Smoke #2 — synthesize & validate auto-samples
+        run: npm run gen:samples:auto:strict
+      - name: Validate samples sweep
+        run: npm run validate:samples
