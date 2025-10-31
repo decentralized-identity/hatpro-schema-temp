@@ -13,6 +13,10 @@ packages/**/json/samples/
 # monolith JSON Schema
 packages/core/json/TravelProfile.schema.json
 
+# Enums are deliverables → track them
+!packages/**/json/enums/
+!packages/**/content/json/enums/
+
 # allow deliverables (review artifacts)
 !deliverables/
 
