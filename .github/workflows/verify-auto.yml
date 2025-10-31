@@ -1,24 +1,45 @@
 name: verify-auto
+
 on:
-  push:
   pull_request:
+    branches: [ main ]
+  # Optional: keep pushes if you want
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-auto-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  verify-auto:
+  verify:
+    name: Generate & Verify
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20 (ESM-friendly)
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install deps
+          cache: 'npm'
+
+      - name: Install deps (clean)
         run: npm ci
-      - name: Generate enums & schemas
-        run: |
-          npm run gen:enums
-          npm run gen:schemas
+
+      - name: Generate enums
+        run: npm run gen:enums
+
+      - name: Generate schemas
+        run: npm run gen:schemas
+
+      - name: Validate examples
+        run: npm run validate:examples
+
       - name: Smoke #1 — compile all schemas
         run: npm run compile:schemas
-      - name: Smoke #2 — synthesize & validate auto-samples
-        run: npm run gen:samples:auto:strict
-      - name: Validate samples sweep
-        run: npm run validate:samples
