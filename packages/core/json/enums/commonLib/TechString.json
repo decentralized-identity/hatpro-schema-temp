@@ -1,0 +1,6 @@
+{
+  "$id": "https://schemas.example.org/hatpro/core/commonLib/TechString.json",
+  "title": "TechString",
+  "type": "string",
+  "enum": []
+}

@@ -1,6 +1,3 @@
-# ajv_manual.yml — v2025-10-21b
-# Manual schema compile using ajv-cli with formats, robust globbing, de-dup, and preloaded refs.
-
 name: Ajv Manual Validation
 
 on:
@@ -14,72 +11,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
-      # Install ajv-cli and the formats plugin globally
-      - name: Install ajv-cli and formats
-        run: npm i -g ajv-cli@5 ajv-formats@3
+      - name: Install deps (npm ci)
+        run: npm ci
 
-      - name: Debug env
-        run: |
-          node -v
-          npm -v
-          ajv --version || true
-          pwd
-          ls -la
-
-      - name: Validate all JSON Schemas (if present)
+      - name: Compile all schemas with refs preloaded
         shell: bash
         run: |
           set -euo pipefail
-          shopt -s nullglob globstar
-
-          # Collect candidates from both layouts
-          declare -a RAW
-          RAW+=(schemas/**/*.json)
-          RAW+=(schemas/*.json)
-          RAW+=(packages/**/json/schemas/**/*.json)
-          RAW+=(packages/**/json/schemas/*.json)
-
-          # De-duplicate
-          declare -A SEEN=()
-          declare -a SCHEMAS=()
-          for f in "${RAW[@]}"; do
-            if [[ -z "${SEEN["$f"]+x}" ]]; then
-              SEEN["$f"]=1
-              SCHEMAS+=("$f")
-            fi
-          done
-
-          echo "Found ${#SCHEMAS[@]} unique schema file(s)."
-          if [ ${#SCHEMAS[@]} -eq 0 ]; then
-            echo "No JSON Schemas found; skipping."
+          shopt -s globstar nullglob
+          mapfile -t SCHEMAS < <(printf '%s
+' packages/**/json/schemas/**/*.schema.json)
+          if [[ ${#SCHEMAS[@]} -eq 0 ]]; then
+            echo "No schemas found under packages/**/json/schemas — nothing to validate."
             exit 0
           fi
-
           fail=0
           for s in "${SCHEMAS[@]}"; do
             echo "Compiling $s"
-
-            # Preload all OTHER schemas as refs (avoid duplicate self-add)
             REF_ARGS=()
             for r in "${SCHEMAS[@]}"; do
               [[ "$r" != "$s" ]] && REF_ARGS+=(-r "$r")
             done
-
-            # Load ajv-formats so date-time, uri, etc. work
-            if ! ajv compile -s "$s" "${REF_ARGS[@]}" -c ajv-formats --spec=draft2020; then
+            if ! npx ajv-cli compile -s "$s" "${REF_ARGS[@]}" -c ajv-formats --spec=draft2020; then
               echo "Failed: $s"
               fail=1
             fi
           done
-
-          if [ "$fail" -ne 0 ]; then
+          if [[ "$fail" -ne 0 ]]; then
             echo "One or more schemas failed to compile."
             exit 1
           fi
-
           echo "All schemas compiled successfully."

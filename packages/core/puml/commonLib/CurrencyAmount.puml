@@ -2,19 +2,25 @@
 @startuml
 skinparam classAttributeIconSize 0
 class CurrencyAmount {
-  +amount: number
-  +currency: string
+  +amount: string
+  +currency: CurrencyTypeEnum
 }
+
 note right of CurrencyAmount
 SCHEMAHINTS v0.1
 title: CurrencyAmount
 additionalProperties: false
 required:[amount,currency]
+
 field amount:
-  type: number
-field currency:
   type: string
-  pattern: ^[A-Z]{3}$
-  desc: "ISO 4217 code"
+  pattern: ^-?(?:0|[1-9]\d{0,11})\.\d{2}$
+  desc: Monetary amount as a string; optional leading '-', exactly 2 decimal digits; no thousands separators; up to 12 digits before the decimal,
+
+field currency:
+  enumDefine:
+    enumId: /core/commonLib/CurrencyTypeEnum
+    valuePattern: ^[A-Z]{3}$
+    desc: Currency Codes - ISO 4217
 end note
 @enduml

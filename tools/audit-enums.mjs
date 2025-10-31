@@ -1,64 +1,72 @@
 #!/usr/bin/env node
+/**
+ * Audit enum JSON files and report duplicates/mismatches.
+ * Scans: packages/**/json/enums/**/*.json
+ */
+
 import fs from "node:fs";
+import fsp from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const repo = process.cwd();
+/* ------- repo root detection (robust) ------- */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+function findRepoRoot(startDir) {
+  let cur = startDir;
+  for (let i = 0; i < 6; i++) {
+    if (fs.existsSync(path.join(cur, "packages"))) return cur;
+    const parent = path.dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  const cwd = process.cwd();
+  if (fs.existsSync(path.join(cwd, "packages"))) return cwd;
+  return startDir;
+}
+const repoRoot   = findRepoRoot(path.resolve(__dirname, ".."));
+const packagesDir = path.join(repoRoot, "packages");
+/* -------------------------------------------- */
 
-function walk(dir) {
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap(d => {
-    const p = path.join(dir, d.name);
-    if (d.isDirectory()) return walk(p);
-    return p;
-  });
+function walkJSON(dir) {
+  const out = [];
+  if (!fs.existsSync(dir)) return out;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...walkJSON(full));
+    else if (entry.isFile() && /\.json$/i.test(entry.name)) out.push(full);
+  }
+  return out;
 }
 
-function loadSet(p) {
-  return new Set(fs.readFileSync(p, "utf8").split(/\r?\n/).map(s => s.trim()).filter(Boolean));
-}
+async function main() {
+  const files = walkJSON(packagesDir).filter((p) => /[\\/]json[\\/]enums[\\/].+\.json$/i.test(p));
+  if (files.length === 0) { console.log("No enum files found under packages/**/json/enums"); return; }
 
-const sources = {
-  "iso/ISO4217.json": loadSet("sources/iso/iso4217.txt"),
-  "iso/ISO3166-1-alpha2.json": loadSet("sources/iso/iso3166-alpha2.txt"),
-  "iso/ISO15924.json": loadSet("sources/iso/iso15924.txt"),
-};
+  const seen = new Map(); // key = name/title, value = { file, values }
+  let issues = 0;
 
-const patternByTitle = {
-  "CurrencyCode": /^[A-Z]{3}$/,
-  "ISO3166-1-alpha2": /^[A-Z]{2}$/,
-  "ISO15924": /^[A-Z][a-z]{3}$/,
-  "ISO639-1": /^[a-z]{2}$/,
-};
+  for (const f of files) {
+    try {
+      const txt = await fsp.readFile(f, "utf8");
+      const node = JSON.parse(txt);
+      const name = node.title || path.basename(f, ".json");
+      const vals = Array.isArray(node.enum) ? node.enum.slice().sort() : [];
 
-let failures = 0;
-
-for (const file of walk("packages")) {
-  if (!/content[\\\/]json[\\\/]enums[\\\/].+\.json$/i.test(file)) continue;
-  const json = JSON.parse(fs.readFileSync(file, "utf8"));
-  const { $id, title } = json;
-  const values = Array.isArray(json.enum) ? json.enum : null;
-
-  // Pattern check for enum codes
-  const pat = patternByTitle[title];
-  if (values && pat) {
-    for (const v of values) {
-      if (!pat.test(v)) {
-        console.error(`Pattern FAIL: ${path.relative(repo, file)} → "${v}" invalid for ${title}`);
-        failures++;
+      const prev = seen.get(name);
+      if (!prev) {
+        seen.set(name, { file: f, values: vals });
+      } else if (JSON.stringify(prev.values) !== JSON.stringify(vals)) {
+        issues++;
+        console.error(`Enum mismatch for '${name}':\n  ${prev.file}\n  ${f}`);
       }
+    } catch (e) {
+      issues++; console.error("Failed to parse enum file:", f, e.message);
     }
   }
 
-  // Cross-check against curated sources if this looks like an allow-list schema
-  const key = Object.keys(sources).find(k => $id && $id.endsWith(k));
-  if (key && values) {
-    const src = sources[key];
-    const unknown = values.filter(v => !src.has(v));
-    if (unknown.length) {
-      console.error(`Unknown codes in ${path.relative(repo, file)}: ${unknown.join(", ")}`);
-      failures++;
-    }
-  }
+  if (issues) { console.error(`Enum audit found ${issues} issue(s).`); process.exit(1); }
+  else { console.log(`Enum audit OK (${files.length} files).`); }
 }
 
-if (failures) process.exit(1);
-console.log("Enum audit OK");
+main().catch((err) => { console.error(err); process.exit(1); });

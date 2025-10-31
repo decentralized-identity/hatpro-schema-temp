@@ -8,6 +8,13 @@ dist/
 # Generated JSON Schemas (both current and future layouts)
 packages/**/json/schemas/
 packages/**/content/json/schemas/
+packages/**/json/samples/
+!packages/**/json/examples/
+# monolith JSON Schema
+packages/core/json/TravelProfile.schema.json
+
+# allow deliverables (review artifacts)
+!deliverables/
 
 # PlantUML renders
 *.png
