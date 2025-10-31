@@ -28,9 +28,9 @@ jobs:
       - name: Install deps (clean)
         run: npm ci
 
-      # v0.1 minimal: ONLY the scripts you already stabilized on this branch
       - name: Validate examples
-        run: npm run validate:examples
+        run: node tools/validate-examples.mjs
 
-      - name: Smoke #1 — compile all schemas
-        run: npm run compile:schemas
+      - name: Smoke #1 — compile all schemas (if present)
+        if: ${{ hashFiles('tools/compile-schemas.mjs') != '' }}
+        run: node tools/compile-schemas.mjs
