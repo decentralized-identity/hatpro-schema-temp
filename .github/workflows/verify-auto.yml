@@ -24,13 +24,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-
       - name: Install deps (clean)
         run: npm ci
-
+      - name: Generate enums
+        run: node tools/generate-enums.mjs
+      - name: Generate schemas
+        run: node tools/generate-json-schema-from-puml.mjs
       - name: Validate examples
         run: node tools/validate-examples.mjs
-
       - name: Smoke #1 — compile all schemas (if present)
         if: ${{ hashFiles('tools/compile-schemas.mjs') != '' }}
         run: node tools/compile-schemas.mjs
