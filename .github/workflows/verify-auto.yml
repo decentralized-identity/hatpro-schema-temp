@@ -3,9 +3,6 @@ name: verify-auto
 on:
   pull_request:
     branches: [ main ]
-  # Optional: keep pushes if you want
-  push:
-    branches: [ main ]
 
 permissions:
   contents: read
@@ -18,7 +15,6 @@ jobs:
   verify:
     name: Generate & Verify
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,12 +28,7 @@ jobs:
       - name: Install deps (clean)
         run: npm ci
 
-      - name: Generate enums
-        run: npm run gen:enums
-
-      - name: Generate schemas
-        run: npm run gen:schemas
-
+      # v0.1 minimal: ONLY the scripts you already stabilized on this branch
       - name: Validate examples
         run: npm run validate:examples
 
