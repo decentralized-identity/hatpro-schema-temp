@@ -5,24 +5,24 @@ skinparam classAttributeIconSize 0
 class TechString {
   +value: string
   +lang: string
-  +script: string
+  +encoding: string
 }
 
 note right of TechString
 SCHEMAHINTS v0.1
 title: TechString
 additionalProperties: false
-required: [value, lang, script]
+required: [value, langLocale, encoding]
 
 field value:
   type: string
 
-field lang:
+field langLocale:
   type: string
   const: "en-US"
   desc: "Fixed IETF BCP 47 language tag"
 
-field script:
+field encoding:
   type: string
   const: "UTF-8"
   desc: "Fixed encoding indicator (note: using 'UTF-8' by design)"

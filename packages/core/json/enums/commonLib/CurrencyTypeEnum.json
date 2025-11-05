@@ -1,0 +1,13 @@
+{
+  "$id": "https://schemas.example.org/hatpro/core/commonLib/CurrencyTypeEnum.json",
+  "title": "ISO 4217 Currency Codes",
+  "type": "string",
+  "enum": [
+    "USD",
+    "CDN",
+    "EUR",
+    "JPY",
+    "SAR"
+  ],
+  "x-sourcePath": "/core/puml/commonLib/CurrencyTypeEnum.puml"
+}

@@ -1,0 +1,19 @@
+{
+  "$id": "https://schemas.example.org/hatpro/core/commonLib/TextLangLocaleEnum.json",
+  "title": "TextLangLocaleEnum",
+  "type": "string",
+  "enum": [
+    "en-US",
+    "ja",
+    "ja-Latn",
+    "zh-Hans",
+    "zh-Hant",
+    "fr",
+    "fr-CA",
+    "hi",
+    "hi-Latn",
+    "sw",
+    "sw-KE"
+  ],
+  "x-sourcePath": "/core/puml/commonLib/TextEncodingEnum.puml"
+}
