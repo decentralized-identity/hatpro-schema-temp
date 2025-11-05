@@ -13,6 +13,7 @@
     "validate:examples": "node tools/validate-examples.mjs",
     "validate:examples:v1": "node tools/validate-examples.mjs --version v1",
     "validate:examples:core": "node tools/validate-examples.mjs --segment core",
+    "validate:ajv": "npm run validate:examples",
     "compile:schemas": "node tools/compile-schemas.mjs",
     "gen:samples:auto": "node tools/gen-auto-samples.mjs --validate",
     "gen:samples:auto:strict": "node tools/gen-auto-samples.mjs --validate --strict",
