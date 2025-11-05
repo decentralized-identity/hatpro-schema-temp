@@ -3,47 +3,37 @@ name: Ajv Manual Validation
 on:
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ajv-manual-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Use Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install deps (npm ci)
+      - name: Install deps
         run: npm ci
 
-      - name: Compile all schemas with refs preloaded
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s globstar nullglob
-          mapfile -t SCHEMAS < <(printf '%s
-' packages/**/json/schemas/**/*.schema.json)
-          if [[ ${#SCHEMAS[@]} -eq 0 ]]; then
-            echo "No schemas found under packages/**/json/schemas — nothing to validate."
-            exit 0
-          fi
-          fail=0
-          for s in "${SCHEMAS[@]}"; do
-            echo "Compiling $s"
-            REF_ARGS=()
-            for r in "${SCHEMAS[@]}"; do
-              [[ "$r" != "$s" ]] && REF_ARGS+=(-r "$r")
-            done
-            if ! npx ajv-cli compile -s "$s" "${REF_ARGS[@]}" -c ajv-formats --spec=draft2020; then
-              echo "Failed: $s"
-              fail=1
-            fi
-          done
-          if [[ "$fail" -ne 0 ]]; then
-            echo "One or more schemas failed to compile."
-            exit 1
-          fi
-          echo "All schemas compiled successfully."
+      - name: Generate enums
+        run: npm run gen:enums
+
+      - name: Generate schemas
+        run: npm run gen:schemas
+
+      - name: Validate examples
+        run: npm run validate:examples
+
+      - name: Compile all schemas
+        run: npm run compile:schemas
