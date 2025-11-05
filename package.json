@@ -25,7 +25,7 @@
     "verify:auto:strict": "npm run compile:schemas && npm run gen:samples:auto:strict && npm run validate:samples",
     "build": "npm run lint:hints && npm run gen:enums && npm run gen:schemas && npm run validate:enums && npm run validate:schemas",
     "build:ci": "npm run lint:hints:strict && npm run gen:enums && npm run gen:schemas && npm run validate:enums && npm run validate:schemas",
-    "clean": "rimraf --glob \"packages/**/json/schemas\" \"packages/**/json/enums\" \"packages/**/json/samples\" \"deliverables\"",
+    "clean": "rimraf --glob \"packages/**/json/schemas\" \"packages/**/json/samples\"",
     "build:fast": "npm run lint:hints && npm run gen:enums && npm run gen:schemas",
     "watch:enums": "chokidar \"packages/**/puml/**/*.puml\" -c \"npm run gen:enums\"",
     "watch:schemas": "chokidar \"packages/**/puml/**/*.puml\" -c \"npm run gen:schemas\"",

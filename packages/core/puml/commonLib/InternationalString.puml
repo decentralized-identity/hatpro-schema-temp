@@ -10,14 +10,14 @@ note right of InternationalString
 SCHEMAHINTS v0.1
 title: InternationalString
 additionalProperties: false
-required:[value, lang, string]
+required:[value, langLocale, encoding]
 
 field value:
   type: string
 
 field langLocale:
   enumDefine:
-    enumId: /core/commonLib/TechLangEnum
+    enumId: /core/commonLib/TextLangLocaleEnum
     valuePattern: ^[a-zA-Z]{2,3}(-[A-Za-z0-9-]+)?$
     description: "IETF BCP47 language tag"
 

@@ -12,7 +12,7 @@ note right of TechString
 SCHEMAHINTS v0.1
 title: TechString
 additionalProperties: false
-required: [value, lang, script]
+required: [value, langLocale, encoding]
 
 field value:
   type: string
